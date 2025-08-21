@@ -31,7 +31,9 @@ class EntityState:
         current = self.get_resource(resource_type)
         new_amount = current + delta
         if new_amount < 0:
-            raise ValueError(f"Would result in negative resources: {new_amount}")
+            raise ValueError(
+                f"Insufficient {resource_type}: have {current}, delta {delta} would make {new_amount}"
+            )
         self.set_resource(resource_type, new_amount)
 
 
@@ -64,4 +66,3 @@ class GlobalState:
     def clone(self) -> "GlobalState":
         """Create deep copy of state."""
         return deepcopy(self)
-

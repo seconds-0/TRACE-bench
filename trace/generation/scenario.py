@@ -43,6 +43,7 @@ class ScenarioGenerator:
         num_entities: int = 3,
         num_tokens: int = 10,
         num_actions: int = 5,
+        max_transfer_per_action: int = 3,
     ) -> Scenario:
         """Generate a simple transfer-only scenario.
 
@@ -67,7 +68,11 @@ class ScenarioGenerator:
         # Generate transfers based on live state
         actions: List[Action] = []
         live_state = state
-        for turn in range(1, num_actions + 1):
+        attempts = 0
+        target = num_actions
+        while len(actions) < target and attempts < target * 10:
+            attempts += 1
+            turn = len(actions) + 1
             from_entity = self.rng.choice(entity_names)
             to_entity_candidates = [e for e in entity_names if e != from_entity]
             if not to_entity_candidates:
@@ -78,7 +83,7 @@ class ScenarioGenerator:
             if max_amount <= 0:
                 continue
 
-            amount = self.rng.randint(1, min(max_amount, 3))
+            amount = self.rng.randint(1, min(max_amount, max_transfer_per_action))
             action = TransferAction(
                 turn=turn,
                 description=f"{from_entity} gives {to_entity} {amount} tokens",
@@ -96,4 +101,3 @@ class ScenarioGenerator:
             total_resources={"tokens": num_tokens},
             seed=self.seed,
         )
-

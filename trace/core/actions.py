@@ -40,14 +40,19 @@ class TransferAction(Action):
         from_e = new_state.get_entity(self.from_entity)
         to_e = new_state.get_entity(self.to_entity)
         if not from_e or not to_e:
-            raise ValueError("Entity not found")
+            missing = []
+            if not from_e:
+                missing.append(self.from_entity)
+            if not to_e:
+                missing.append(self.to_entity)
+            raise ValueError(f"Entity not found: {', '.join(missing)}")
 
         if self.amount < 0:
-            raise ValueError("Transfer amount cannot be negative")
+            raise ValueError(f"Transfer amount cannot be negative: {self.amount}")
 
+        # May raise if insufficient balance
         from_e.modify_resource(self.resource_type, -self.amount)
         to_e.modify_resource(self.resource_type, self.amount)
 
         new_state.turn = self.turn
         return new_state
-

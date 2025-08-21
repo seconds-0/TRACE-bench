@@ -31,6 +31,32 @@ def test_transfer_action():
     assert new_state.get_entity("bob").get_resource("tokens") == 5
 
 
+def test_transfer_missing_entity_raises():
+    state = GlobalState()
+    state.add_entity("alice", {"tokens": 5})
+    # 'carol' does not exist
+    action = TransferAction(1, "bad", "alice", "carol", "tokens", 1)
+    try:
+        action.apply(state)
+    except ValueError as e:
+        assert "Entity not found" in str(e)
+    else:
+        raise AssertionError("Expected ValueError for missing entity")
+
+
+def test_transfer_negative_amount_raises():
+    state = GlobalState()
+    state.add_entity("alice", {"tokens": 5})
+    state.add_entity("bob", {"tokens": 0})
+    action = TransferAction(1, "bad", "alice", "bob", "tokens", -1)
+    try:
+        action.apply(state)
+    except ValueError as e:
+        assert "negative" in str(e)
+    else:
+        raise AssertionError("Expected ValueError for negative transfer amount")
+
+
 def test_conservation():
     state = GlobalState()
     state.add_entity("alice", {"tokens": 5})
@@ -51,4 +77,3 @@ def test_conservation():
     violations = verifier.verify(bad_state)
     assert len(violations) == 1
     assert violations[0].violation_type == "conservation"
-
