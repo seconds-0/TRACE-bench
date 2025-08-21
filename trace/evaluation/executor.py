@@ -32,8 +32,33 @@ class EvaluationResult:
 
 
 class Evaluator:
-    def __init__(self, model_interface):
+    def __init__(self, model_interface, *, cache_enabled: bool = False, cache_dir: Optional[str] = None):
         self.model = model_interface
+        self.cache_enabled = cache_enabled
+        self.cache_dir = cache_dir
+
+    def _cache_key(self, prompt: str) -> str:
+        import hashlib, os
+        h = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+        model = getattr(self.model, "name", "unknown").replace("/", "_")
+        sub = os.path.join(self.cache_dir or ".trace_cache", model)
+        os.makedirs(sub, exist_ok=True)
+        return os.path.join(sub, f"{h}.json")
+
+    def _cached_generate(self, prompt: str) -> str:
+        import os, tempfile
+        if not self.cache_enabled:
+            return self.model.generate(prompt)
+        path = self._cache_key(prompt)
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read()
+        resp = self.model.generate(prompt)
+        tmp = f"{path}.tmp.{os.getpid()}"
+        with open(tmp, "w", encoding="utf-8") as f:
+            f.write(resp)
+        os.replace(tmp, path)
+        return resp
 
     def _parse_final_state(self, response: str) -> GlobalState:
         obj = json.loads(response)
@@ -71,7 +96,7 @@ class Evaluator:
         pb = PromptBuilder(scenario)
         if mode == "per_turn":
             prompt = pb.build_per_turn_prompt()
-            response = self.model.generate(prompt)
+            response = self._cached_generate(prompt)
             model_states = self._parse_per_turn(response)
             gt_states = scenario.get_ground_truth()[1:]  # after each turn (expected count)
             verifier = ConservationVerifier()
@@ -133,7 +158,7 @@ class Evaluator:
 
         # Final mode
         prompt = pb.build_final_state_prompt()
-        response = self.model.generate(prompt)
+        response = self._cached_generate(prompt)
         model_state = self._parse_final_state(response)
         gt_state = scenario.get_ground_truth()[-1]
         verifier = ConservationVerifier()

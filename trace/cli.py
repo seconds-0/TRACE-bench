@@ -29,6 +29,9 @@ def main():
     p_suite.add_argument("--difficulty", default="easy", choices=["trivial", "easy", "medium"]) 
     p_suite.add_argument("--scenarios", type=int, default=5)
     p_suite.add_argument("--output", default="results.json")
+    p_suite.add_argument("--concurrency", type=int, default=1)
+    p_suite.add_argument("--cache", action="store_true")
+    p_suite.add_argument("--cache-dir", default=None)
 
     p_test = sub.add_parser("test", help="Run with mock model")
     p_test.add_argument("--mode", default="final", choices=["final", "per_turn"]) 
@@ -47,7 +50,8 @@ def main():
     if args.cmd == "suite":
         model = OpenRouterModel(args.model)
         suite = BenchmarkSuite(model)
-        results = suite.run_suite(args.difficulty, args.scenarios, mode=args.mode)
+        suite.evaluator = Evaluator(model, cache_enabled=args.cache, cache_dir=args.cache_dir)
+        results = suite.run_suite(args.difficulty, args.scenarios, mode=args.mode, concurrency=args.concurrency)
         suite.save_results(results, args.output)
         print("Saved:", args.output)
         return
@@ -81,4 +85,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
