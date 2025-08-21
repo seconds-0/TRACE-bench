@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/trace-evaluation-result.schema.json",
+  "title": "TRACE Evaluation Result",
+  "type": "object",
+  "required": [
+    "scenario_seed", "model_name", "mode",
+    "conservation_held", "state_correct",
+    "conservation_accuracy", "state_accuracy",
+    "raw_response", "parsed_state", "ground_truth"
+  ],
+  "properties": {
+    "scenario_seed": {"type": "integer"},
+    "model_name": {"type": "string"},
+    "mode": {"type": "string", "enum": ["final", "per_turn"]},
+    "conservation_held": {"type": "boolean"},
+    "state_correct": {"type": "boolean"},
+    "conservation_accuracy": {"type": "number"},
+    "state_accuracy": {"type": "number"},
+    "conservation_accuracy_per_turn": {"type": ["array", "null"]},
+    "entity_accuracy_per_turn": {"type": ["array", "null"]},
+    "violations": {"type": "array"},
+    "raw_response": {"type": "string"},
+    "parsed_state": {"type": "object"},
+    "ground_truth": {"type": "object"},
+    "prompt_hash": {"type": ["string", "null"]},
+    "timestamps": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}
+

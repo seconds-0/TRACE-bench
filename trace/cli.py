@@ -29,6 +29,7 @@ def main():
     p_suite.add_argument("--difficulty", default="easy", choices=["trivial", "easy", "medium"]) 
     p_suite.add_argument("--scenarios", type=int, default=5)
     p_suite.add_argument("--output", default="results.json")
+    p_suite.add_argument("--jsonl", default=None, help="Optional JSONL path for individual results")
 
     p_test = sub.add_parser("test", help="Run with mock model")
     p_test.add_argument("--mode", default="final", choices=["final", "per_turn"]) 
@@ -47,7 +48,7 @@ def main():
     if args.cmd == "suite":
         model = OpenRouterModel(args.model)
         suite = BenchmarkSuite(model)
-        results = suite.run_suite(args.difficulty, args.scenarios, mode=args.mode)
+        results = suite.run_suite(args.difficulty, args.scenarios, mode=args.mode, jsonl_path=args.jsonl)
         suite.save_results(results, args.output)
         print("Saved:", args.output)
         return
@@ -81,4 +82,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

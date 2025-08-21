@@ -1,11 +1,14 @@
 """
 Execute benchmark evaluations (final-state and per-turn modes).
+Adds prompt hashing and timestamps to results for reproducibility.
 """
 
 from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+import hashlib
 from typing import Dict, List, Optional
 
 from ..core.state import GlobalState
@@ -29,6 +32,8 @@ class EvaluationResult:
     raw_response: str = ""
     parsed_state: Optional[Dict] = None
     ground_truth: Optional[Dict] = None
+    prompt_hash: Optional[str] = None
+    timestamps: Optional[Dict[str, str]] = None
 
 
 class Evaluator:
@@ -71,7 +76,9 @@ class Evaluator:
         pb = PromptBuilder(scenario)
         if mode == "per_turn":
             prompt = pb.build_per_turn_prompt()
+            started = datetime.now(timezone.utc).isoformat()
             response = self.model.generate(prompt)
+            ended = datetime.now(timezone.utc).isoformat()
             model_states = self._parse_per_turn(response)
             gt_states = scenario.get_ground_truth()[1:]  # after each turn (expected count)
             verifier = ConservationVerifier()
@@ -129,11 +136,15 @@ class Evaluator:
                 raw_response=response,
                 parsed_state={"turns": [self._state_to_dict(s) for s in model_states]},
                 ground_truth={"turns": [self._state_to_dict(s) for s in gt_states]},
+                prompt_hash=hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+                timestamps={"started_at": started, "ended_at": ended},
             )
 
         # Final mode
         prompt = pb.build_final_state_prompt()
+        started = datetime.now(timezone.utc).isoformat()
         response = self.model.generate(prompt)
+        ended = datetime.now(timezone.utc).isoformat()
         model_state = self._parse_final_state(response)
         gt_state = scenario.get_ground_truth()[-1]
         verifier = ConservationVerifier()
@@ -159,6 +170,8 @@ class Evaluator:
             raw_response=response,
             parsed_state=self._state_to_dict(model_state),
             ground_truth=self._state_to_dict(gt_state),
+            prompt_hash=hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+            timestamps={"started_at": started, "ended_at": ended},
         )
 
     def _state_to_dict(self, state: GlobalState) -> Dict:

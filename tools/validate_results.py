@@ -16,8 +16,13 @@ from typing import Any, Iterable
 import jsonschema
 
 
-def load_schema() -> dict[str, Any]:
-    schema_path = Path("schemas/trace-result.schema.json")
+def load_schema(name: str) -> dict[str, Any]:
+    mapping = {
+        "steel": "schemas/trace-result.schema.json",
+        "perturn": "schemas/trace-per-turn-response.schema.json",
+        "result": "schemas/trace-evaluation-result.schema.json",
+    }
+    schema_path = Path(mapping.get(name, "schemas/trace-result.schema.json"))
     with schema_path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -44,9 +49,10 @@ def iter_json(path: Path) -> Iterable[dict[str, Any]]:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Validate TRACE result JSON/JSONL")
     ap.add_argument("path", type=Path)
+    ap.add_argument("--schema", default="steel", choices=["steel", "perturn", "result"], help="Schema name to validate against")
     args = ap.parse_args()
 
-    schema = load_schema()
+    schema = load_schema(args.schema)
     count = 0
     for obj in iter_json(args.path):
         jsonschema.validate(instance=obj, schema=schema)
@@ -58,4 +64,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

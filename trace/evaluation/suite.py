@@ -28,11 +28,15 @@ class BenchmarkSuite:
         num_scenarios: int = 5,
         mode: str = "final",
         seeds: Optional[List[int]] = None,
+        jsonl_path: Optional[str] = None,
     ) -> Dict:
         config = self.DIFFICULTY_CONFIGS[difficulty]
         if seeds is None:
             seeds = list(range(num_scenarios))
         results: List[EvaluationResult] = []
+        jsonl_file = None
+        if jsonl_path:
+            jsonl_file = open(jsonl_path, "w", encoding="utf-8")
 
         for i, seed in enumerate(seeds):
             print(f"Running scenario {i+1}/{len(seeds)} (seed={seed})")
@@ -40,7 +44,12 @@ class BenchmarkSuite:
             scenario = gen.generate_simple(**config)
             res = self.evaluator.evaluate(scenario, mode=mode)
             results.append(res)
+            if jsonl_file:
+                jsonl_file.write(json.dumps(asdict(res)) + "\n")
             print(f"  Conservation: {'✓' if res.conservation_held else '✗'}  State: {'✓' if res.state_correct else '✗'}")
+
+        if jsonl_file:
+            jsonl_file.close()
 
         return self._aggregate(results, difficulty, mode)
 
@@ -49,10 +58,12 @@ class BenchmarkSuite:
         cons = sum(1 for r in results if r.conservation_held) / max(1, total)
         state = sum(1 for r in results if r.state_correct) / max(1, total)
         mean_entity_acc = sum(r.state_accuracy for r in results) / max(1, total)
+        seeds = [r.scenario_seed for r in results]
         return {
             "difficulty": difficulty,
             "mode": mode,
             "total_scenarios": total,
+            "seeds": seeds,
             "aggregate_scores": {
                 "conservation_accuracy": cons,
                 "state_accuracy": state,
@@ -64,4 +75,3 @@ class BenchmarkSuite:
     def save_results(self, results: Dict, filepath: str) -> None:
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2)
-
