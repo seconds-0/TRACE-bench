@@ -1,0 +1,192 @@
+{
+  "summary": {
+    "total_models": 8,
+    "successful_tests": 5,
+    "conservation_pass_rate": "4/8 (50.0%)",
+    "state_accuracy_rate": "2/8 (25.0%)",
+    "avg_duration": "4.46s"
+  },
+  "detailed_results": [
+    {
+      "trace_schema_version": "0.1.0",
+      "model": "openai/gpt-3.5-turbo",
+      "params": {
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "prompt_hash": "1a942e7030bd9e919f9e890e06c1e8cf3a2f6a29c1b5bb2d643959affb31c077",
+      "timestamps": {
+        "started_at": "2025-08-21T08:36:17.121427+00:00",
+        "ended_at": "2025-08-21T08:36:18.316485+00:00"
+      },
+      "request_id": null,
+      "conservation_held": true,
+      "state_correct": false,
+      "expected_total": 10,
+      "actual_total": 10,
+      "reported_total": 10,
+      "reported_total_matches": true,
+      "expected_state": {
+        "alice": 4,
+        "bob": 2,
+        "charlie": 4
+      },
+      "actual_state": {
+        "alice": 4,
+        "bob": 5,
+        "charlie": 1
+      },
+      "raw_response": "{\n  \"entities\": {\n    \"Alice\": {\"tokens\": 4},\n    \"Bob\": {\"tokens\": 5},\n    \"Charlie\": {\"tokens\": 1}\n  },\n  \"totals\": {\"tokens\": 10}\n}",
+      "test_duration": 1.2
+    },
+    {
+      "model": "thenlper/gte-large",
+      "error": "Failed calling model after retries: 400 Client Error: Bad Request for url: https://openrouter.ai/api/v1/chat/completions",
+      "conservation_held": false,
+      "state_correct": false,
+      "test_duration": 0
+    },
+    {
+      "model": "zhipuai/glm-4-air",
+      "error": "Failed calling model after retries: 400 Client Error: Bad Request for url: https://openrouter.ai/api/v1/chat/completions",
+      "conservation_held": false,
+      "state_correct": false,
+      "test_duration": 0
+    },
+    {
+      "trace_schema_version": "0.1.0",
+      "model": "qwen/qwen-2.5-coder-32b-instruct:free",
+      "params": {
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "prompt_hash": "1a942e7030bd9e919f9e890e06c1e8cf3a2f6a29c1b5bb2d643959affb31c077",
+      "timestamps": {
+        "started_at": "2025-08-21T08:36:31.435871+00:00",
+        "ended_at": "2025-08-21T08:36:39.868056+00:00"
+      },
+      "request_id": null,
+      "conservation_held": true,
+      "state_correct": false,
+      "expected_total": 10,
+      "actual_total": 10,
+      "reported_total": 10,
+      "reported_total_matches": true,
+      "expected_state": {
+        "alice": 4,
+        "bob": 2,
+        "charlie": 4
+      },
+      "actual_state": {
+        "alice": 4,
+        "bob": 0,
+        "charlie": 6
+      },
+      "raw_response": "{\n  \"entities\": {\n    \"Alice\": {\"tokens\": 4},\n    \"Bob\": {\"tokens\": 0},\n    \"Charlie\": {\"tokens\": 6}\n  },\n  \"totals\": {\"tokens\": 10}\n}",
+      "test_duration": 8.43
+    },
+    {
+      "trace_schema_version": "0.1.0",
+      "model": "moonshotai/kimi-k2:free",
+      "params": {
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "prompt_hash": "1a942e7030bd9e919f9e890e06c1e8cf3a2f6a29c1b5bb2d643959affb31c077",
+      "timestamps": {
+        "started_at": "2025-08-21T08:36:41.873179+00:00",
+        "ended_at": "2025-08-21T08:36:48.374673+00:00"
+      },
+      "request_id": null,
+      "conservation_held": true,
+      "state_correct": true,
+      "expected_total": 10,
+      "actual_total": 10,
+      "reported_total": 10,
+      "reported_total_matches": true,
+      "expected_state": {
+        "alice": 4,
+        "bob": 2,
+        "charlie": 4
+      },
+      "actual_state": {
+        "alice": 4,
+        "bob": 2,
+        "charlie": 4
+      },
+      "raw_response": "{\n  \"entities\": {\n    \"Alice\": {\"tokens\": 4},\n    \"Bob\": {\"tokens\": 2},\n    \"Charlie\": {\"tokens\": 4}\n  },\n  \"totals\": {\"tokens\": 10}\n}",
+      "test_duration": 6.5
+    },
+    {
+      "trace_schema_version": "0.1.0",
+      "model": "deepseek/deepseek-r1-0528-qwen3-8b:free",
+      "params": {
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "prompt_hash": "1a942e7030bd9e919f9e890e06c1e8cf3a2f6a29c1b5bb2d643959affb31c077",
+      "timestamps": {
+        "started_at": "2025-08-21T08:36:50.375649+00:00",
+        "ended_at": "2025-08-21T08:37:04.314313+00:00"
+      },
+      "request_id": null,
+      "conservation_held": true,
+      "state_correct": true,
+      "expected_total": 10,
+      "actual_total": 10,
+      "reported_total": 10,
+      "reported_total_matches": true,
+      "expected_state": {
+        "alice": 4,
+        "bob": 2,
+        "charlie": 4
+      },
+      "actual_state": {
+        "alice": 4,
+        "bob": 2,
+        "charlie": 4
+      },
+      "raw_response": "{\n  \"entities\": {\n    \"Alice\": {\"tokens\": 4},\n    \"Bob\": {\"tokens\": 2},\n    \"Charlie\": {\"tokens\": 4}\n  },\n  \"totals\": {\"tokens\": 10}\n}",
+      "test_duration": 13.94
+    },
+    {
+      "model": "google/gemma-2b-it:free",
+      "error": "Failed calling model after retries: 404 Client Error: Not Found for url: https://openrouter.ai/api/v1/chat/completions",
+      "conservation_held": false,
+      "state_correct": false,
+      "test_duration": 0
+    },
+    {
+      "trace_schema_version": "0.1.0",
+      "model": "mistralai/mistral-7b-instruct:free",
+      "params": {
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "prompt_hash": "1a942e7030bd9e919f9e890e06c1e8cf3a2f6a29c1b5bb2d643959affb31c077",
+      "timestamps": {
+        "started_at": "2025-08-21T08:37:11.849026+00:00",
+        "ended_at": "2025-08-21T08:37:16.199644+00:00"
+      },
+      "request_id": null,
+      "conservation_held": false,
+      "state_correct": false,
+      "expected_total": 10,
+      "actual_total": 15,
+      "reported_total": 15,
+      "reported_total_matches": true,
+      "expected_state": {
+        "alice": 4,
+        "bob": 2,
+        "charlie": 4
+      },
+      "actual_state": {
+        "alice": 4,
+        "bob": 6,
+        "charlie": 5
+      },
+      "raw_response": " {\n  \"entities\": {\n    \"Alice\": {\"tokens\": 4},\n    \"Bob\": {\"tokens\": 6},\n    \"Charlie\": {\"tokens\": 5}\n  },\n  \"totals\": {\"tokens\": 15}\n}",
+      "test_duration": 5.6
+    }
+  ]
+}
