@@ -73,37 +73,59 @@ class Evaluator:
             prompt = pb.build_per_turn_prompt()
             response = self.model.generate(prompt)
             model_states = self._parse_per_turn(response)
-            gt_states = scenario.get_ground_truth()[1:]  # after each turn
+            gt_states = scenario.get_ground_truth()[1:]  # after each turn (expected count)
             verifier = ConservationVerifier()
             verifier.set_baseline(scenario.initial_state)
 
             # Per-turn metrics
-            cons = []
-            ent = []
-            for ms, gt in zip(model_states, gt_states):
-                viols = verifier.verify(ms)
+            cons: List[float] = []
+            ent: List[float] = []
+            violations: List[Violation] = []
+
+            # Handle turn-count mismatch (pad with zeros, ignore extras)
+            expected = len(gt_states)
+            actual = len(model_states)
+            if actual != expected:
+                violations.append(
+                    Violation(
+                        turn=expected,
+                        violation_type="turn_count_mismatch",
+                        expected=expected,
+                        actual=actual,
+                        message=f"Expected {expected} turns, got {actual}",
+                    )
+                )
+
+            # Evaluate up to expected turns; missing turns score as 0
+            for i in range(expected):
+                if i >= actual:
+                    cons.append(0.0)
+                    ent.append(0.0)
+                    continue
+                ms = model_states[i]
+                gt = gt_states[i]
+                vios = verifier.verify(ms)
                 correct_entities = sum(
                     1
                     for name, e in gt.entities.items()
                     if ms.get_entity(name) and ms.get_entity(name).resources == e.resources
                 )
-                cons.append(1.0 if len(viols) == 0 else 0.0)
-                ent.append(
-                    correct_entities / max(1, len(gt.entities))
-                )
+                cons.append(1.0 if len(vios) == 0 else 0.0)
+                ent.append(correct_entities / max(1, len(gt.entities)))
 
             # Final-state booleans use last turn
-            final_correct = ent[-1] == 1.0 and cons[-1] == 1.0
+            final_correct = (len(cons) > 0 and ent[-1] == 1.0 and cons[-1] == 1.0 and len(violations) == 0)
             return EvaluationResult(
                 scenario_seed=scenario.seed,
                 model_name=getattr(self.model, "name", "unknown"),
                 mode="per_turn",
-                conservation_held=cons[-1] == 1.0,
+                conservation_held=(len(cons) > 0 and cons[-1] == 1.0 and len(violations) == 0),
                 state_correct=final_correct,
                 conservation_accuracy=sum(cons) / len(cons),
                 state_accuracy=sum(ent) / len(ent),
                 conservation_accuracy_per_turn=cons,
                 entity_accuracy_per_turn=ent,
+                violations=violations,
                 raw_response=response,
                 parsed_state={"turns": [self._state_to_dict(s) for s in model_states]},
                 ground_truth={"turns": [self._state_to_dict(s) for s in gt_states]},
@@ -141,4 +163,3 @@ class Evaluator:
 
     def _state_to_dict(self, state: GlobalState) -> Dict:
         return {name: e.resources for name, e in state.entities.items()}
-

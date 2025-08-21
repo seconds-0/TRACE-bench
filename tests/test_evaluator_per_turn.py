@@ -40,3 +40,26 @@ def test_per_turn_failing():
     assert res.conservation_accuracy < 1.0
     assert res.state_accuracy < 1.0
 
+
+def test_per_turn_turn_count_mismatch():
+    scenario = build_simple_scenario()
+
+    class FewTurnsModel:
+        name = "few-turns-mock"
+
+        def generate(self, prompt: str, **kwargs) -> str:
+            return (
+                '{"turns": ['
+                '{"entities": {"entity_0": {"tokens": 4}}, "totals": {"tokens": 10}},'
+                '{"entities": {"entity_0": {"tokens": 3}}, "totals": {"tokens": 10}}'
+                ']}'
+            )
+
+    res = Evaluator(FewTurnsModel()).evaluate(scenario, mode="per_turn")
+    assert any(v.violation_type == "turn_count_mismatch" for v in res.violations)
+    # Arrays should be length of expected turns (3)
+    assert len(res.conservation_accuracy_per_turn) == 3
+    assert len(res.entity_accuracy_per_turn) == 3
+    assert res.conservation_held is False
+    assert res.state_correct is False
+

@@ -18,11 +18,14 @@ class MockModel(ModelInterface):
         # Very naive mock that returns correct shapes for tests
         if self._mode == "per_turn":
             if self._perfect:
-                # Three turns, entity_0: 5->4->4; etc. Keep totals at 10
+                # Ground truth for test scenario: initial(5,3,2) -> actions: 0->1(1), 2->1(1), 1->2(1)
+                # Turn 1: entity_0=4, entity_1=4, entity_2=2
+                # Turn 2: entity_0=4, entity_1=5, entity_2=1  
+                # Turn 3: entity_0=4, entity_1=4, entity_2=2
                 turns = [
                     {"entities": {"entity_0": {"tokens": 4}, "entity_1": {"tokens": 4}, "entity_2": {"tokens": 2}}, "totals": {"tokens": 10}},
-                    {"entities": {"entity_0": {"tokens": 4}, "entity_1": {"tokens": 3}, "entity_2": {"tokens": 3}}, "totals": {"tokens": 10}},
-                    {"entities": {"entity_0": {"tokens": 3}, "entity_1": {"tokens": 3}, "entity_2": {"tokens": 4}}, "totals": {"tokens": 10}},
+                    {"entities": {"entity_0": {"tokens": 4}, "entity_1": {"tokens": 5}, "entity_2": {"tokens": 1}}, "totals": {"tokens": 10}},
+                    {"entities": {"entity_0": {"tokens": 4}, "entity_1": {"tokens": 4}, "entity_2": {"tokens": 2}}, "totals": {"tokens": 10}},
                 ]
             else:
                 # Final turn off by one and break conservation
@@ -35,12 +38,13 @@ class MockModel(ModelInterface):
 
         # final
         if self._perfect:
+            # Final state after all actions: entity_0=4, entity_1=4, entity_2=2
             return json.dumps(
                 {
                     "entities": {
-                        "entity_0": {"tokens": 3},
-                        "entity_1": {"tokens": 3},
-                        "entity_2": {"tokens": 4},
+                        "entity_0": {"tokens": 4},
+                        "entity_1": {"tokens": 4},
+                        "entity_2": {"tokens": 2},
                     },
                     "totals": {"tokens": 10},
                 }
