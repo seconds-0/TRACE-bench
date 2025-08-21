@@ -38,6 +38,19 @@ def _iso_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+# Exceptions
+class SteelThreadError(Exception):
+    """Base exception for steel thread errors."""
+
+
+class MissingAPIKeyError(ValueError, SteelThreadError):
+    """Raised when an API key is required but missing."""
+
+
+class ResponseNotJSONError(ValueError, SteelThreadError):
+    """Raised when the model response is not valid JSON matching the schema."""
+
+
 @dataclass
 class SteelThreadConfig:
     model: str = "openai/gpt-3.5-turbo"
@@ -61,7 +74,9 @@ class SteelThreadTRACE:
         Retries with exponential backoff on failures and rate limits (429).
         """
         if not self.api_key:
-            raise ValueError("Need OPENROUTER_API_KEY environment variable for live calls")
+            raise MissingAPIKeyError(
+                "Need OPENROUTER_API_KEY environment variable for live calls"
+            )
 
         payload = {
             "model": self.config.model,
@@ -105,7 +120,7 @@ class SteelThreadTRACE:
                 time.sleep(backoff)
                 backoff *= 2
         assert last_exc is not None
-        raise RuntimeError(f"Failed calling model after retries: {last_exc}")
+        raise SteelThreadError(f"Failed calling model after retries: {last_exc}")
 
     @staticmethod
     def parse_json_state(response: str) -> Tuple[Dict[str, int], int]:
@@ -121,22 +136,24 @@ class SteelThreadTRACE:
         try:
             obj = json.loads(response)
         except json.JSONDecodeError as e:  # noqa: TRY003
-            raise ValueError(f"Response was not valid JSON: {e}")
+            raise ResponseNotJSONError(f"Response was not valid JSON: {e}")
 
         if not isinstance(obj, dict) or "entities" not in obj or "totals" not in obj:
-            raise ValueError("Response JSON missing required keys 'entities' and 'totals'")
+            raise ResponseNotJSONError(
+                "Response JSON missing required keys 'entities' and 'totals'"
+            )
 
         entities = obj["entities"]
         totals = obj["totals"]
         if not isinstance(entities, dict) or not isinstance(totals, dict):
-            raise ValueError("'entities' and 'totals' must be objects")
+            raise ResponseNotJSONError("'entities' and 'totals' must be objects")
         if "tokens" not in totals or not isinstance(totals["tokens"], int):
-            raise ValueError("'totals.tokens' must be an integer")
+            raise ResponseNotJSONError("'totals.tokens' must be an integer")
 
         state: Dict[str, int] = {}
         for name, res in entities.items():
             if not isinstance(res, dict) or "tokens" not in res or not isinstance(res["tokens"], int):
-                raise ValueError(f"Entity '{name}' missing integer 'tokens'")
+                raise ResponseNotJSONError(f"Entity '{name}' missing integer 'tokens'")
             state[name.lower()] = int(res["tokens"])
 
         return state, int(totals["tokens"])
@@ -275,10 +292,13 @@ def main() -> int:
     parser.add_argument("--model", default="openai/gpt-3.5-turbo")
     parser.add_argument("--save-prompt", action="store_true")
     parser.add_argument("--save-prefix", default="steel_thread")
+    parser.add_argument("--timeout", type=int, default=None, help="HTTP timeout seconds")
     args = parser.parse_args()
 
     runner = SteelThreadTRACE()
     runner.config.model = args.model
+    if args.timeout is not None:
+        runner.config.timeout = args.timeout
     try:
         results = runner.run(save_prompt=args.save_prompt, save_prefix=args.save_prefix)
     except Exception as e:  # noqa: BLE001

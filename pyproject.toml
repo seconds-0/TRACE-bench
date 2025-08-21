@@ -1,0 +1,12 @@
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+select = ["E", "F"]
+exclude = [
+  ".git",
+  ".github",
+  ".venv",
+  "venv",
+  ".pytest_cache",
+]
+

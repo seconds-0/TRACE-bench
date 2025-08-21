@@ -4,7 +4,12 @@ from pathlib import Path
 
 import jsonschema
 
-from steel_thread import SteelThreadTRACE, TRACE_SCHEMA_VERSION, main as steel_main
+from steel_thread import (
+    SteelThreadTRACE,
+    TRACE_SCHEMA_VERSION,
+    MissingAPIKeyError,
+    ResponseNotJSONError,
+)
 
 
 def load_schema():
@@ -45,10 +50,10 @@ def test_live_requires_api_key(monkeypatch):
     runner = SteelThreadTRACE()
     try:
         runner.run()
-    except ValueError as e:
+    except MissingAPIKeyError as e:
         assert "OPENROUTER_API_KEY" in str(e)
     else:
-        raise AssertionError("Expected ValueError due to missing API key for live call")
+        raise AssertionError("Expected MissingAPIKeyError due to missing API key for live call")
 
 
 def test_invalid_json_path(monkeypatch):
@@ -66,9 +71,8 @@ def test_invalid_json_path(monkeypatch):
     runner.call_model = fake_call_model  # type: ignore
     try:
         runner.run()
-    except ValueError as e:
+    except ResponseNotJSONError as e:
         assert "valid JSON" in str(e)
         assert calls["n"] >= 2  # initial + strict retry attempted
     else:
-        raise AssertionError("Expected ValueError for invalid JSON response")
-
+        raise AssertionError("Expected ResponseNotJSONError for invalid JSON response")
