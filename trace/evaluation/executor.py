@@ -34,6 +34,10 @@ class EvaluationResult:
     ground_truth: Optional[Dict] = None
     prompt_hash: Optional[str] = None
     timestamps: Optional[Dict[str, str]] = None
+    trace_schema_version: str = "0.1.0"
+    provider: Optional[str] = None
+    model_params: Optional[Dict[str, object]] = None
+    error: Optional[str] = None
 
 
 class Evaluator:
@@ -138,6 +142,8 @@ class Evaluator:
                 ground_truth={"turns": [self._state_to_dict(s) for s in gt_states]},
                 prompt_hash=hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
                 timestamps={"started_at": started, "ended_at": ended},
+                provider=type(self.model).__name__,
+                model_params=self._extract_model_params(),
             )
 
         # Final mode
@@ -172,7 +178,17 @@ class Evaluator:
             ground_truth=self._state_to_dict(gt_state),
             prompt_hash=hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
             timestamps={"started_at": started, "ended_at": ended},
+            provider=type(self.model).__name__,
+            model_params=self._extract_model_params(),
         )
 
     def _state_to_dict(self, state: GlobalState) -> Dict:
         return {name: e.resources for name, e in state.entities.items()}
+
+    def _extract_model_params(self) -> Dict[str, object]:
+        keys = ["temperature", "top_p", "timeout", "max_retries"]
+        params: Dict[str, object] = {}
+        for k in keys:
+            if hasattr(self.model, k):
+                params[k] = getattr(self.model, k)
+        return params

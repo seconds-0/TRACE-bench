@@ -21,6 +21,7 @@ def load_schema(name: str) -> dict[str, Any]:
         "steel": "schemas/trace-result.schema.json",
         "perturn": "schemas/trace-per-turn-response.schema.json",
         "result": "schemas/trace-evaluation-result.schema.json",
+        "aggregate": "schemas/trace-suite-aggregate.schema.json",
     }
     schema_path = Path(mapping.get(name, "schemas/trace-result.schema.json"))
     with schema_path.open("r", encoding="utf-8") as f:
@@ -49,7 +50,7 @@ def iter_json(path: Path) -> Iterable[dict[str, Any]]:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Validate TRACE result JSON/JSONL")
     ap.add_argument("path", type=Path)
-    ap.add_argument("--schema", default="steel", choices=["steel", "perturn", "result"], help="Schema name to validate against")
+    ap.add_argument("--schema", default="steel", choices=["steel", "perturn", "result", "aggregate"], help="Schema name to validate against")
     args = ap.parse_args()
 
     schema = load_schema(args.schema)

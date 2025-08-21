@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/trace-suite-aggregate.schema.json",
+  "title": "TRACE Suite Aggregate Result",
+  "type": "object",
+  "required": [
+    "trace_schema_version", "run_id", "difficulty", "mode",
+    "scenario_config", "total_scenarios", "seeds", "timestamps",
+    "aggregate_scores", "individual_results"
+  ],
+  "properties": {
+    "trace_schema_version": {"type": "string"},
+    "run_id": {"type": "string"},
+    "difficulty": {"type": "string"},
+    "mode": {"type": "string"},
+    "scenario_config": {"type": "object"},
+    "total_scenarios": {"type": "integer"},
+    "seeds": {"type": "array", "items": {"type": "integer"}},
+    "jsonl_path": {"type": ["string", "null"]},
+    "timestamps": {"type": "object"},
+    "model_info": {"type": "object"},
+    "aggregate_scores": {"type": "object"},
+    "individual_results": {"type": "array"}
+  },
+  "additionalProperties": true
+}
+

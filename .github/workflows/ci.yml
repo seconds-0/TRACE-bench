@@ -25,3 +25,9 @@ jobs:
         env:
           MOCK_STEEL_THREAD: '1'
         run: pytest -q
+      - name: Generate mock suite artifacts
+        run: python tools/generate_mock_results.py
+      - name: Validate JSONL and aggregate
+        run: |
+          python tools/validate_results.py tmp/results.jsonl --schema result
+          python tools/validate_results.py tmp/aggregate.json --schema aggregate

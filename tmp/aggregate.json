@@ -1,0 +1,130 @@
+{
+  "trace_schema_version": "0.1.0",
+  "run_id": "ae902147-9d66-4af8-abcb-dde83c351266",
+  "difficulty": "trivial",
+  "mode": "final",
+  "scenario_config": {
+    "num_entities": 2,
+    "num_tokens": 5,
+    "num_actions": 2
+  },
+  "total_scenarios": 2,
+  "seeds": [
+    0,
+    1
+  ],
+  "jsonl_path": "tmp/results.jsonl",
+  "timestamps": {
+    "started_at": "2025-08-21T10:31:20.849831+00:00",
+    "ended_at": "2025-08-21T10:31:20.850597+00:00"
+  },
+  "model_info": {
+    "name": "mock-final-perfect",
+    "params": {}
+  },
+  "aggregate_scores": {
+    "conservation_accuracy": 0.0,
+    "state_accuracy": 0.0,
+    "mean_entity_accuracy": 0.25
+  },
+  "individual_results": [
+    {
+      "scenario_seed": 0,
+      "model_name": "mock-final-perfect",
+      "mode": "final",
+      "conservation_held": false,
+      "state_correct": false,
+      "conservation_accuracy": 0.0,
+      "state_accuracy": 0.5,
+      "conservation_accuracy_per_turn": null,
+      "entity_accuracy_per_turn": null,
+      "violations": [
+        {
+          "turn": 0,
+          "violation_type": "conservation",
+          "expected": 5,
+          "actual": 10,
+          "message": "tokens: expected 5, got 10"
+        }
+      ],
+      "raw_response": "{\"entities\": {\"entity_0\": {\"tokens\": 4}, \"entity_1\": {\"tokens\": 4}, \"entity_2\": {\"tokens\": 2}}, \"totals\": {\"tokens\": 10}}",
+      "parsed_state": {
+        "entity_0": {
+          "tokens": 4
+        },
+        "entity_1": {
+          "tokens": 4
+        },
+        "entity_2": {
+          "tokens": 2
+        }
+      },
+      "ground_truth": {
+        "entity_0": {
+          "tokens": 4
+        },
+        "entity_1": {
+          "tokens": 1
+        }
+      },
+      "prompt_hash": "6e95469d38b38e3c639284028432011defcb0dc3fba7bc0c7bf400a6e1ac88fa",
+      "timestamps": {
+        "started_at": "2025-08-21T10:31:20.850111+00:00",
+        "ended_at": "2025-08-21T10:31:20.850124+00:00"
+      },
+      "trace_schema_version": "0.1.0",
+      "provider": "MockModel",
+      "model_params": {},
+      "error": null
+    },
+    {
+      "scenario_seed": 1,
+      "model_name": "mock-final-perfect",
+      "mode": "final",
+      "conservation_held": false,
+      "state_correct": false,
+      "conservation_accuracy": 0.0,
+      "state_accuracy": 0.0,
+      "conservation_accuracy_per_turn": null,
+      "entity_accuracy_per_turn": null,
+      "violations": [
+        {
+          "turn": 0,
+          "violation_type": "conservation",
+          "expected": 5,
+          "actual": 10,
+          "message": "tokens: expected 5, got 10"
+        }
+      ],
+      "raw_response": "{\"entities\": {\"entity_0\": {\"tokens\": 4}, \"entity_1\": {\"tokens\": 4}, \"entity_2\": {\"tokens\": 2}}, \"totals\": {\"tokens\": 10}}",
+      "parsed_state": {
+        "entity_0": {
+          "tokens": 4
+        },
+        "entity_1": {
+          "tokens": 4
+        },
+        "entity_2": {
+          "tokens": 2
+        }
+      },
+      "ground_truth": {
+        "entity_0": {
+          "tokens": 2
+        },
+        "entity_1": {
+          "tokens": 3
+        }
+      },
+      "prompt_hash": "8477dcfc7be336ed73ce8aaeca9d7733338ea7cf3814a3a1a7007e294fa4cb94",
+      "timestamps": {
+        "started_at": "2025-08-21T10:31:20.850359+00:00",
+        "ended_at": "2025-08-21T10:31:20.850367+00:00"
+      },
+      "trace_schema_version": "0.1.0",
+      "provider": "MockModel",
+      "model_params": {},
+      "error": null
+    }
+  ]
+}
