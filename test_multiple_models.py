@@ -21,7 +21,7 @@ FREE_MODELS = [
     "mistralai/mistral-7b-instruct:free",  # Mistral free alternative
 ]
 
-def test_model(model_name: str) -> dict:
+def run_model(model_name: str) -> dict:
     """Test a single model and return results."""
     print(f"\n🚀 Testing {model_name}")
     print("=" * 50)
@@ -112,7 +112,7 @@ def main():
     
     for i, model in enumerate(FREE_MODELS, 1):
         print(f"\n[{i}/{len(FREE_MODELS)}]", end=" ")
-        result = test_model(model)
+        result = run_model(model)
         all_results.append(result)
         
         # Brief pause between models to be nice to the API
