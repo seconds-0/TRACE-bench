@@ -28,19 +28,37 @@ class BenchmarkSuite:
         num_scenarios: int = 5,
         mode: str = "final",
         seeds: Optional[List[int]] = None,
+        concurrency: int = 1,
     ) -> Dict:
         config = self.DIFFICULTY_CONFIGS[difficulty]
         if seeds is None:
             seeds = list(range(num_scenarios))
         results: List[EvaluationResult] = []
 
-        for i, seed in enumerate(seeds):
-            print(f"Running scenario {i+1}/{len(seeds)} (seed={seed})")
-            gen = ScenarioGenerator(seed)
-            scenario = gen.generate_simple(**config)
-            res = self.evaluator.evaluate(scenario, mode=mode)
-            results.append(res)
-            print(f"  Conservation: {'✓' if res.conservation_held else '✗'}  State: {'✓' if res.state_correct else '✗'}")
+        if concurrency <= 1:
+            for i, seed in enumerate(seeds):
+                print(f"Running scenario {i+1}/{len(seeds)} (seed={seed})")
+                gen = ScenarioGenerator(seed)
+                scenario = gen.generate_simple(**config)
+                res = self.evaluator.evaluate(scenario, mode=mode)
+                results.append(res)
+                print(f"  Conservation: {'✓' if res.conservation_held else '✗'}  State: {'✓' if res.state_correct else '✗'}")
+        else:
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+
+            def run_one(seed: int) -> EvaluationResult:
+                gen = ScenarioGenerator(seed)
+                scenario = gen.generate_simple(**config)
+                return self.evaluator.evaluate(scenario, mode=mode)
+
+            with ThreadPoolExecutor(max_workers=concurrency) as ex:
+                futs = {ex.submit(run_one, seed): seed for seed in seeds}
+                for i, fut in enumerate(as_completed(futs), 1):
+                    seed = futs[fut]
+                    res = fut.result()
+                    results.append(res)
+                    print(f"Running scenario {i}/{len(seeds)} (seed={seed})")
+                    print(f"  Conservation: {'✓' if res.conservation_held else '✗'}  State: {'✓' if res.state_correct else '✗'}")
 
         return self._aggregate(results, difficulty, mode)
 
@@ -64,4 +82,3 @@ class BenchmarkSuite:
     def save_results(self, results: Dict, filepath: str) -> None:
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2)
-
