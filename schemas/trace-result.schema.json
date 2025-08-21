@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/trace-result.schema.json",
+  "title": "TRACE Steel Thread Result",
+  "type": "object",
+  "required": [
+    "trace_schema_version",
+    "model",
+    "params",
+    "prompt_hash",
+    "timestamps",
+    "conservation_held",
+    "state_correct",
+    "expected_total",
+    "actual_total",
+    "reported_total",
+    "expected_state",
+    "actual_state",
+    "raw_response"
+  ],
+  "properties": {
+    "trace_schema_version": { "type": "string" },
+    "model": { "type": "string" },
+    "params": {
+      "type": "object",
+      "properties": {
+        "temperature": { "type": "number" },
+        "top_p": { "type": "number" }
+      },
+      "required": ["temperature", "top_p"],
+      "additionalProperties": true
+    },
+    "prompt_hash": { "type": "string" },
+    "timestamps": {
+      "type": "object",
+      "properties": {
+        "started_at": { "type": "string" },
+        "ended_at": { "type": "string" }
+      },
+      "required": ["started_at", "ended_at"],
+      "additionalProperties": true
+    },
+    "conservation_held": { "type": "boolean" },
+    "state_correct": { "type": "boolean" },
+    "expected_total": { "type": "integer" },
+    "actual_total": { "type": "integer" },
+    "reported_total": { "type": "integer" },
+    "expected_state": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" }
+    },
+    "actual_state": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" }
+    },
+    "raw_response": { "type": "string" }
+  },
+  "additionalProperties": true
+}
+
