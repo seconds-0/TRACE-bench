@@ -1,0 +1,31 @@
+name: Live Smoke PR
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  live-smoke:
+    if: ${{ secrets.OPENROUTER_API_KEY != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      - name: Per-turn quick (free model)
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          python - << 'PY'
+import sys
+sys.path.insert(0, '.')
+from trace.cli import main
+sys.argv = ['trace', 'quick', '--model', 'mistralai/mistral-7b-instruct:free', '--mode', 'per_turn']
+main()
+PY
+
